@@ -121,26 +121,33 @@ export default function App() {
           <p className="intro-sub">
             Can you go <em>20–0</em>?
           </p>
-          <ol>
-            <li>The wheel lands on one of the 32 NFL teams.</li>
-            <li>Sign one player from it: a QB, an RB, two WRs, and a TE fill your five slots.</li>
-            <li>
-              Salaries are set by overall rating and position scarcity — the thinner the talent
-              pool at a position, the pricier its stars. You have {fmtM(BUDGET)}.
-            </li>
-            <li>
-              Position already filled? You can still sign there as a trade: pay the new salary
-              plus a {fmtM(TRADE_FEE)} fee, and your old player's contract comes off the books.
-            </li>
-            <li>Blow it early and you'll be scraping league-minimum depth guys by the fifth slot.</li>
-            <li>
-              We simulate the 17-game season plus the playoffs. Every regular-season loss lowers
-              your playoff ceiling by one round — only a 17–0 team can win the Super Bowl. 20–0 is
-              immortality.
-            </li>
-          </ol>
+          <div className="intro-steps">
+            <div className="step">
+              <div className="step-h">DRAFT</div>
+              <div className="step-p">A random NFL team is drawn each round — real players, current rosters.</div>
+            </div>
+            <div className="step">
+              <div className="step-h">SIGN</div>
+              <div className="step-p">Pick one player per draw: a QB, an RB, two WRs, and a TE.</div>
+            </div>
+            <div className="step">
+              <div className="step-h">SALARIES</div>
+              <div className="step-p">Prices scale with rating and position scarcity. You get {fmtM(BUDGET)}.</div>
+            </div>
+            <div className="step">
+              <div className="step-h">TRADE</div>
+              <div className="step-p">
+                Position filled? Swap him out — pay the new salary plus a {fmtM(TRADE_FEE)} fee,
+                and the old contract comes back.
+              </div>
+            </div>
+            <div className="step">
+              <div className="step-h">SIMULATE</div>
+              <div className="step-p">All 17 games plus the playoffs. Perfection is 20–0.</div>
+            </div>
+          </div>
           <button className="btn btn-hot btn-big" onClick={start}>
-            START THE WHEEL
+            BEGIN DRAFT
           </button>
           <div className="fine">current player ratings · salaries set by rating and position scarcity</div>
         </div>

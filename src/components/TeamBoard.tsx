@@ -49,7 +49,9 @@ function PlayerCard({ p, signable, onRoster, out, net, canSwap, onSwap, onSign }
           </div>
           <div className="pcard-out">
             <span className="pcard-out-label">SWAP</span>
-            <span className="pcard-out-name">{out.player.name}</span>
+            <span className="pcard-out-name">
+              {out.player.name} ({out.player.ovr})
+            </span>
             {canSwap && (
               <button
                 className="swap-btn"
