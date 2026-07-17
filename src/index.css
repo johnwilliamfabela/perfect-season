@@ -1,0 +1,275 @@
+:root {
+  --bg: #0a0e0b;
+  --panel: #101812;
+  --panel-2: #16211a;
+  --line: #26392c;
+  --text: #dae4db;
+  --dim: #879a8b;
+  --hot: #34d399;
+  --hot-2: #6ee7b7;
+  --good: #4ade80;
+  --bad: #f87171;
+  --gold: #ffd76a;
+  --trade: #c084fc;
+  --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.45 -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.app { max-width: 1180px; margin: 0 auto; padding: 20px 20px 80px; }
+
+/* header */
+.hdr {
+  display: flex; align-items: center; gap: 18px;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px 18px; margin-bottom: 16px;
+}
+.hdr-title {
+  font-family: var(--mono); font-weight: 700; letter-spacing: 2px;
+  color: var(--hot); display: flex; align-items: center; gap: 12px;
+}
+.hdr-dots { display: flex; gap: 6px; flex: 1; }
+.dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: #24324a; border: 1px solid var(--line);
+}
+.dot-filled { background: var(--hot); border-color: var(--hot-2); }
+.bankroll {
+  font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--good);
+  border: 1px solid #14532d; background: #05190d; border-radius: 10px;
+  padding: 8px 16px; text-align: center;
+}
+.bankroll span { display: block; font-size: 9px; letter-spacing: 3px; color: #3f9e63; }
+.bankroll-mid { color: var(--gold); border-color: #6b5a1e; background: #191307; }
+.bankroll-mid span { color: #b09b52; }
+.bankroll-low { color: var(--bad); border-color: #7f1d1d; background: #1c0a0a; }
+.bankroll-low span { color: #b45f5f; }
+
+/* roster slots — five cards side by side */
+.slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+.slot {
+  border: 1px dashed var(--line); border-radius: 12px; min-height: 92px;
+  padding: 10px 12px; color: var(--dim); overflow: hidden;
+}
+.slot-filled { border-style: solid; background: var(--panel); }
+.slot-pos { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--hot); }
+.slot-name { font-weight: 700; color: var(--text); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slot-sub { font-size: 11.5px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slot-price { font-family: var(--mono); color: var(--gold); font-size: 13px; margin-top: 2px; }
+
+/* intro */
+.intro {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+  padding: 44px 48px; text-align: center;
+}
+.intro h1 { font-size: 34px; letter-spacing: 1px; margin: 0 0 18px; }
+.intro h1 em { color: var(--text); font-style: normal; }
+.intro ol {
+  text-align: left; max-width: 620px; margin: 0 auto 26px; color: var(--dim);
+  display: grid; gap: 8px; font-size: 15px;
+}
+.fine { margin-top: 16px; font-size: 12px; color: var(--dim); font-family: var(--mono); }
+
+/* buttons */
+.btn {
+  font-family: var(--mono); font-weight: 700; letter-spacing: 1.5px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 20px; cursor: pointer; font-size: 13px;
+}
+.btn:hover:not(:disabled) { border-color: var(--hot); color: var(--hot-2); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-hot {
+  background: var(--hot);
+  color: #06130b; border: none;
+}
+.btn-hot:hover:not(:disabled) { color: #000; filter: brightness(1.06); }
+.btn-big { font-size: 16px; padding: 15px 34px; }
+.btn-sm { font-size: 10px; padding: 5px 10px; }
+
+/* wheel */
+.wheel {
+  position: relative; overflow: hidden; border: 1px solid var(--line);
+  background: var(--panel); border-radius: 14px; height: 120px; margin-bottom: 14px;
+}
+.wheel::before, .wheel::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 140px; z-index: 2; pointer-events: none;
+}
+.wheel::before { left: 0; background: linear-gradient(90deg, var(--panel), transparent); }
+.wheel::after { right: 0; background: linear-gradient(-90deg, var(--panel), transparent); }
+.wheel-pointer {
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; z-index: 3;
+  background: var(--hot); box-shadow: 0 0 14px var(--hot);
+}
+.wheel-strip {
+  display: flex; height: 100%; align-items: center;
+  padding-left: calc(50% - 55px);
+  will-change: transform;
+}
+.wheel-cell {
+  flex: 0 0 110px; display: flex; align-items: center; justify-content: center;
+}
+.wheel-cell img { width: 74px; height: 74px; object-fit: contain; }
+
+
+/* team board */
+.board { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+.board-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.board-note { margin-left: auto; font-family: var(--mono); font-size: 11px; letter-spacing: 1px; color: var(--trade); text-transform: uppercase; }
+.board-head img { width: 54px; height: 54px; object-fit: contain; }
+.board-team { font-size: 24px; font-weight: 800; letter-spacing: 0.5px; }
+.board-sub { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; }
+.board-cols { display: grid; grid-template-columns: repeat(var(--cols, 4), 1fr); gap: 12px; align-items: start; }
+.board-pos {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 3px; color: var(--hot);
+  border-bottom: 2px solid var(--line); padding-bottom: 6px; margin-bottom: 10px; text-align: center;
+}
+.board-col { display: grid; gap: 10px; }
+
+/* player card */
+.pcard {
+  text-align: left; background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px; color: var(--text);
+  transition: transform 0.08s ease, border-color 0.08s ease;
+}
+.pcard:hover:not(.pcard-off) { border-color: var(--hot); transform: translateY(-2px); }
+.pcard-off { opacity: 0.35; }
+.pcard-cta {
+  margin-top: 10px; width: 100%; font: inherit; font-family: var(--mono);
+  font-weight: 800; font-size: 12px; letter-spacing: 1px; cursor: pointer;
+  color: var(--hot); background: transparent; border: 1px solid var(--hot);
+  border-radius: 8px; padding: 8px 0;
+}
+.pcard-cta:hover:not(:disabled) { background: rgba(52, 211, 153, 0.12); }
+.pcard-cta:disabled { cursor: not-allowed; border-color: var(--line); color: var(--dim); }
+.pcard-cta-trade { color: var(--trade); border-color: var(--trade); }
+.pcard-cta-trade:hover:not(:disabled) { background: rgba(192, 132, 252, 0.12); }
+.pcard-top { display: flex; align-items: center; gap: 8px; }
+.ovr {
+  font-family: var(--mono); font-weight: 800; font-size: 22px; color: var(--dim);
+}
+.ovr-good { color: var(--text); }
+.ovr-elite { color: var(--gold); }
+.pcard-name { font-weight: 700; margin-top: 6px; }
+.pcard-price { font-family: var(--mono); color: var(--gold); font-weight: 700; margin-top: 8px; }
+.pcard-cap { color: var(--dim); font-weight: 400; font-size: 11px; }
+
+/* complete + results */
+
+.results { display: grid; gap: 16px; }
+.res-hero, .res-big {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+  text-align: center; padding: 30px;
+}
+.res-record { font-family: var(--mono); font-size: 64px; font-weight: 800; line-height: 1; }
+.res-tag { font-size: 18px; margin-top: 8px; color: var(--hot-2); font-weight: 700; }
+.res-sub { font-size: 12px; color: var(--dim); }
+.res-hero .res-sub { margin-top: 8px; }
+.res-pct { font-family: var(--mono); font-size: 54px; font-weight: 800; color: var(--hot); line-height: 1; }
+.res-pct-label { font-family: var(--mono); font-size: 11px; letter-spacing: 3px; color: var(--dim); margin: 8px 0; }
+.res-squad { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px 24px; }
+.res-squad h3 { margin: 0 0 12px; font-family: var(--mono); letter-spacing: 2px; font-size: 14px; }
+.res-best { border-color: #3f3413; }
+.res-row {
+  display: flex; align-items: center; gap: 12px; padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+.res-slot { font-family: var(--mono); color: var(--hot); width: 40px; font-size: 12px; }
+.res-ovr { font-family: var(--mono); font-weight: 800; width: 58px; }
+.res-name { flex: 1; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.res-logo { width: 20px; height: 20px; object-fit: contain; }
+.res-price { font-family: var(--mono); color: var(--gold); }
+.res-quip { margin-top: 12px; color: var(--dim); font-size: 13px; }
+.res-actions { display: flex; gap: 12px; justify-content: center; padding: 10px 0 30px; }
+
+@media (max-width: 900px) {
+  .board-cols { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .slots { grid-template-columns: repeat(5, minmax(0,1fr)); gap: 6px; }
+  .slot { min-height: 70px; padding: 8px; font-size: 11px; }
+}
+
+.res-rtg { font-family: var(--mono); color: var(--good); font-size: 13px; width: 84px; text-align: right; }
+.res-total { border-top: 2px solid var(--line); font-weight: 800; }
+.res-total .res-rtg { color: var(--hot); }
+
+.ovr-label, .res-ovr-label {
+  font-size: 9px; letter-spacing: 1px; color: var(--dim);
+  margin-left: 3px; font-weight: 400;
+}
+
+.intro-sub { font-size: 20px; color: var(--fg); margin: 2px 0 14px; }
+.intro-sub em { color: var(--hot); font-style: normal; font-weight: 800; }
+
+.badge-trade {
+  font-size: 9px; letter-spacing: 1px; font-weight: 800; color: var(--trade);
+  border: 1px solid var(--trade); border-radius: 4px; padding: 1px 5px; margin-left: 8px;
+  vertical-align: 1px;
+}
+
+.net-back { color: var(--good); }
+
+.swap-btn {
+  font: inherit; font-size: 13px; line-height: 1; cursor: pointer;
+  color: var(--trade); background: transparent; border: 1px solid var(--line);
+  border-radius: 6px; width: 20px; height: 20px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-left: 6px; flex: none;
+}
+.swap-btn:hover { border-color: var(--trade); }
+
+.pcard-out { font-size: 11px; color: var(--dim); margin-top: 2px; display: flex; align-items: center; min-width: 0; }
+.pcard-out-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pcard-out-label { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--trade); margin-right: 5px; flex: none; }
+
+.res-trades { margin-top: 8px; display: grid; gap: 2px; }
+
+
+@media (max-width: 600px) {
+  .hdr { flex-wrap: wrap; gap: 10px; padding: 12px 14px; }
+  .hdr-title { font-size: 12px; letter-spacing: 1px; white-space: nowrap; }
+  .hdr-dots { order: 3; flex-basis: 100%; justify-content: center; }
+  .bankroll { font-size: 15px; padding: 6px 10px; margin-left: auto; }
+  .slot { min-height: 58px; padding: 7px 8px; }
+  .slot-sub { display: none; }
+  .slot-name { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slot-price { font-size: 11px; }
+  .board { padding: 14px; }
+  .board-head { flex-wrap: wrap; gap: 10px; }
+  .board-head img { width: 40px; height: 40px; }
+  .board-team { font-size: 20px; white-space: nowrap; }
+  .board-note { margin-left: 0; flex-basis: 100%; }
+  .res-row { gap: 8px; font-size: 13px; }
+  .res-price { font-size: 12px; }
+  .intro { padding: 28px 20px; }
+  .intro h1 { font-size: 26px; }
+}
+
+/* mobile board: all four positions side by side, horizontal scroll (~2.75 cards visible) */
+@media (max-width: 600px) {
+  .board-cols {
+    display: flex; overflow-x: auto; gap: 10px;
+    padding-bottom: 10px; -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  .board-col { flex: 0 0 34vw; min-width: 126px; scroll-snap-align: start; }
+  .pcard { padding: 9px; }
+  .pcard-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pcard-price { font-size: 12px; margin-top: 5px; }
+  .ovr { font-size: 18px; }
+  .pcard-cta { font-size: 10px; padding: 7px 0; }
+  .pcard-out { font-size: 9px; }
+  .swap-btn { width: 17px; height: 17px; font-size: 11px; margin-left: 4px; }
+}
+
+.res-best-pick {
+  background: var(--panel); border: 1px solid var(--gold); color: var(--gold);
+  border-radius: 12px; padding: 14px 18px; text-align: center;
+  font-family: var(--mono); font-size: 13px; letter-spacing: 1px;
+}

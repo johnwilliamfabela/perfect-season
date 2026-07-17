@@ -1,0 +1,2 @@
+pool: 525 players across 32 teams
+unmatched OVR>=75 (assigned min salary):
