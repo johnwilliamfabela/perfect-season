@@ -35,7 +35,7 @@ export function renderShareCard(d: ShareCardData): Promise<Blob> {
 
   ctx.fillStyle = HOT;
   ctx.font = `700 34px ${MONO}`;
-  ctx.fillText("T H E   P E R F E C T   S E A S O N", W / 2, 100);
+  ctx.fillText("D R E A M   O F F E N S E", W / 2, 100);
 
   ctx.fillStyle = TEXT;
   ctx.font = `800 190px ${MONO}`;

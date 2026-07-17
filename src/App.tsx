@@ -69,7 +69,7 @@ export default function App() {
     <div className="app">
       <header className="hdr">
         <div className="hdr-title">
-          THE PERFECT SEASON
+          DREAM OFFENSE
           {phase !== "intro" && (
             <button className="btn btn-sm" onClick={start}>
               START OVER
@@ -116,7 +116,7 @@ export default function App() {
       {phase === "intro" && (
         <div className="intro">
           <h1>
-            BUILD YOUR PERFECT <em>OFFENSE</em>
+            BUILD YOUR DREAM <em>OFFENSE</em>
           </h1>
           <p className="intro-sub">
             Can you go <em>20–0</em>?

@@ -58,6 +58,8 @@ export default function Results({ roster, drawnTeams, trades, spent, onRestart }
     best !== null &&
     new Set(best.five.map((x) => x.player.id)).size === 5 &&
     best.five.every((x) => yourFive.some((y) => y.player.id === x.player.id));
+  // different five, but the ideal squad couldn't out-record you — still a win
+  const matchedBest = !pickedBest && bestSim !== null && f.wins >= bestSim.featured.wins;
   const [shareState, setShareState] = useState<"idle" | "copied" | "failed">("idle");
 
   const exitTag = {
@@ -73,7 +75,7 @@ export default function Results({ roster, drawnTeams, trades, spent, onRestart }
       const sg = roster[s]!;
       return `${s}: ${sg.player.name} (${sg.player.ovr}) ${fmtM(sg.player.apy)}`;
     });
-    return `The Perfect Season 🏈\nMy season: ${f.wins}–${f.losses}\n${lines.join("\n")}\nSpent ${fmtM(spent)} of ${fmtM(BUDGET)}`;
+    return `Dream Offense 🏈\nMy season: ${f.wins}–${f.losses}\n${lines.join("\n")}\nSpent ${fmtM(spent)} of ${fmtM(BUDGET)}`;
   };
 
   const share = async () => {
@@ -94,7 +96,7 @@ export default function Results({ roster, drawnTeams, trades, spent, onRestart }
     const file = new File([blob], "perfect-season.png", { type: "image/png" });
     if (navigator.canShare?.({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: "The Perfect Season", text: shareText() });
+        await navigator.share({ files: [file], title: "Dream Offense", text: shareText() });
         return;
       } catch {
         // user cancelled the sheet — nothing to clean up
@@ -132,6 +134,11 @@ export default function Results({ roster, drawnTeams, trades, spent, onRestart }
           🏆 FLAWLESS — you signed the best possible squad from your draws.
         </div>
       )}
+      {matchedBest && (
+        <div className="res-best-pick">
+          🏆 MAXED OUT — the best possible squad wouldn't have done any better.
+        </div>
+      )}
 
       <div className="res-squad">
         <h3>🏈 YOUR SQUAD</h3>
@@ -150,7 +157,7 @@ export default function Results({ roster, drawnTeams, trades, spent, onRestart }
         )}
       </div>
 
-      {best && bestSim && !pickedBest && (
+      {best && bestSim && !pickedBest && !matchedBest && (
         <div className="res-squad res-best">
           <h3>
             🏆 BEST POSSIBLE SQUAD{" "}
