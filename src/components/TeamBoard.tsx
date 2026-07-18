@@ -40,7 +40,14 @@ function PlayerCard({ p, origPrice, signable, onRoster, out, net, canSwap, onSwa
         </span>
         {origPrice !== null && <span className="badge-gold">ROOKIE DEAL</span>}
       </div>
-      <div className="pcard-name">{p.name}</div>
+      <div className="pcard-name">
+        {p.name}
+        {out && !onRoster && p.ovr !== out.player.ovr && (
+          <span className={p.ovr > out.player.ovr ? "arrow-up" : "arrow-down"}>
+            {p.ovr > out.player.ovr ? "▲" : "▼"}
+          </span>
+        )}
+      </div>
       {out ? (
         <>
           <div className="pcard-price" title={title}>

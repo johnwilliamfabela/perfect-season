@@ -309,3 +309,6 @@ body {
 .pcard-was { color: var(--dim); font-weight: 400; margin-right: 7px; }
 
 .pcard-deal-note { font-size: 10.5px; color: var(--gold); margin-top: 4px; }
+
+.arrow-up { color: var(--good); font-size: 11px; margin-left: 6px; }
+.arrow-down { color: var(--bad); font-size: 11px; margin-left: 6px; }
