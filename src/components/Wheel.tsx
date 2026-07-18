@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { TEAMS } from "../game/data";
 import type { Team } from "../game/types";
 
 const CELL = 110; // px per logo cell
+const EASING = "transform 2.2s cubic-bezier(0.12, 0.8, 0.16, 1)";
 
 /** Horizontal logo strip that decelerates onto the drawn team. */
 export default function Wheel({ landing, spinKey, onDone }: {
@@ -10,8 +11,7 @@ export default function Wheel({ landing, spinKey, onDone }: {
   spinKey: number;
   onDone: () => void;
 }) {
-  const [offset, setOffset] = useState(0);
-  const [animate, setAnimate] = useState(false);
+  const stripRef = useRef<HTMLDivElement>(null);
 
   // A strip of two shuffled full-league blocks (no adjacent repeats) whose
   // 40th cell is the landing team.
@@ -38,14 +38,19 @@ export default function Wheel({ landing, spinKey, onDone }: {
   }, [spinKey]);
 
   useEffect(() => {
-    setAnimate(false);
-    setOffset(0);
-    const t1 = setTimeout(() => {
-      setAnimate(true);
-      setOffset(40 * CELL);
-    }, 40);
+    // Direct DOM writes with a forced reflow in between: the reset frame is
+    // guaranteed to be committed before the animation starts, so the spin can
+    // never collapse into an instant jump under load.
+    const el = stripRef.current;
+    if (el) {
+      el.style.transition = "none";
+      el.style.transform = "translateX(0px)";
+      void el.offsetWidth; // force reflow
+      el.style.transition = EASING;
+      el.style.transform = `translateX(${-40 * CELL}px)`;
+    }
     const t2 = setTimeout(onDone, 2400);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    return () => clearTimeout(t2);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spinKey]);
 
@@ -53,11 +58,9 @@ export default function Wheel({ landing, spinKey, onDone }: {
     <div className="wheel">
       <div className="wheel-pointer" />
       <div
+        ref={stripRef}
         className="wheel-strip"
-        style={{
-          transform: `translateX(${-offset}px)`,
-          transition: animate ? "transform 2.2s cubic-bezier(0.12, 0.8, 0.16, 1)" : "none",
-        }}
+        style={{ transform: "translateX(0px)", transition: "none" }}
       >
         {strip.map((t, i) => (
           <div className="wheel-cell" key={i}>

@@ -73,10 +73,11 @@ export function drawTeam(
   remaining: number,
   roster: Roster,
   signedIds: Set<number>,
-  excludeTeam?: string,
+  excludeTeams: string[] = [],
 ): Team {
+  // never draw a team twice in one game (falls back only if that empties the pool)
   const candidates = TEAMS.filter(
-    (t) => t.name !== excludeTeam && isDrawable(t, remaining, roster, signedIds),
+    (t) => !excludeTeams.includes(t.name) && isDrawable(t, remaining, roster, signedIds),
   );
   const pool = candidates.length > 0 ? candidates : TEAMS.filter((t) => isDrawable(t, remaining, roster, signedIds));
   return pool[Math.floor(Math.random() * pool.length)];

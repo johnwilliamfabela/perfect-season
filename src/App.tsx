@@ -56,7 +56,7 @@ export default function App() {
       const nextIds = new Set(
         SLOTS.flatMap((s) => (nextRoster[s] ? [nextRoster[s]!.player.id] : [])),
       );
-      const team = drawTeam(nextRemaining, nextRoster, nextIds);
+      const team = drawTeam(nextRemaining, nextRoster, nextIds, [...drawnTeams, currentTeam.name]);
       setCurrentTeam(team);
       setSpinKey((k) => k + 1);
       setPhase("spinning");
