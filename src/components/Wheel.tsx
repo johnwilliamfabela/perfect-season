@@ -33,7 +33,7 @@ export default function Wheel({ landing, spinKey, onDone }: {
     if (block2[0].name === block1[block1.length - 1].name) {
       [block2[0], block2[1]] = [block2[1], block2[0]];
     }
-    return [...block1, ...block2].slice(0, 44);
+    return [...block1, ...block2].slice(0, 52);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spinKey]);
 
