@@ -4,7 +4,6 @@ import Results, { type TradeRecord } from "./components/Results";
 import Wheel from "./components/Wheel";
 import { fmtM, isRookieDeal, playersOf } from "./game/data";
 import { drawTeam, openSlots, planFor, signingCost } from "./game/engine";
-import { runSims } from "./game/sim";
 import {
   BUDGET,
   SLOTS,
@@ -12,7 +11,6 @@ import {
   type DrawRecord,
   type Player,
   type Roster,
-  type SimSummary,
   type SlotId,
   type Team,
 } from "./game/types";
@@ -29,8 +27,6 @@ export default function App() {
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
   const [draws, setDraws] = useState<DrawRecord[]>([]);
   const [trades, setTrades] = useState<TradeRecord[]>([]);
-  // locked the moment the fifth slot fills — re-renders can never re-roll the season
-  const [sim, setSim] = useState<SimSummary | null>(null);
   const [spinKey, setSpinKey] = useState(0);
 
   const signedIds = new Set(
@@ -41,7 +37,6 @@ export default function App() {
     setRemaining(BUDGET);
     setDraws([]);
     setTrades([]);
-    setSim(null);
     const team = drawTeam(BUDGET, EMPTY_ROSTER, new Set());
     setCurrentTeam(team);
     setSpinKey((k) => k + 1);
@@ -59,7 +54,6 @@ export default function App() {
     const nextDraws = [...draws, { team: currentTeam.name, deal: null }];
     setDraws(nextDraws);
     if (openSlots(nextRoster).length === 0) {
-      setSim(runSims(nextRoster)); // the season is rolled HERE, once, forever
       setPhase("results");
     } else {
       const nextIds = new Set(
@@ -154,9 +148,9 @@ export default function App() {
               </div>
             </div>
             <div className="step">
-              <div className="step-h">SIMULATE</div>
+              <div className="step-h">WIN</div>
               <div className="step-p">
-                We run your season 10,000 times. Your score: the chance you go 20–0.
+                Your five's average rating decides your season. A 91.0+ average goes 20–0.
               </div>
             </div>
           </div>
@@ -187,8 +181,8 @@ export default function App() {
         </>
       )}
 
-      {phase === "results" && sim && (
-        <Results roster={roster} sim={sim} draws={draws} trades={trades} spent={spent} onRestart={start} />
+      {phase === "results" && (
+        <Results roster={roster} draws={draws} trades={trades} spent={spent} onRestart={start} />
       )}
     </div>
   );

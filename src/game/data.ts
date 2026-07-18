@@ -62,3 +62,13 @@ export function playersOf(team: string): Player[] {
 export function fmtM(dollars: number): string {
   return `$${(dollars / 1e6).toFixed(1)}M`;
 }
+
+/**
+ * Deterministic season: your five's average rating IS your record.
+ * 91+ runs the table (20-0); each point below costs a win. Playoff seasons
+ * (10+ wins) are 20 games; sub-playoff seasons are 17.
+ */
+export function recordFor(avg: number): { wins: number; losses: number } {
+  const wins = avg >= 91 ? 20 : Math.max(4, Math.floor(avg) - 71);
+  return wins >= 10 ? { wins, losses: 20 - wins } : { wins, losses: 17 - wins };
+}

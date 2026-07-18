@@ -1,14 +1,13 @@
 import { useMemo, useState } from "react";
-import { TEAMS, fmtM } from "../game/data";
+import { TEAMS, fmtM, recordFor } from "../game/data";
 import { renderShareCard } from "../game/shareCard";
-import { bestPossible, runSimsOff } from "../game/sim";
+import { bestPossible } from "../game/sim";
 import {
   BUDGET,
   SLOTS,
   type DrawRecord,
   type Player,
   type Roster,
-  type SimSummary,
   type SlotId,
 } from "../game/types";
 
@@ -50,16 +49,14 @@ function TotalRow({ five, cost }: { five: { slot: SlotId; player: Player }[]; co
   );
 }
 
-export default function Results({ roster, sim, draws, trades, spent, onRestart }: {
+export default function Results({ roster, draws, trades, spent, onRestart }: {
   roster: Roster;
-  sim: SimSummary;
   draws: DrawRecord[];
   trades: TradeRecord[];
   spent: number;
   onRestart: () => void;
 }) {
   const best = useMemo(() => bestPossible(draws), [draws]);
-  const bestSim = useMemo(() => (best ? runSimsOff(best.off) : null), [best]);
   const yourFive = SLOTS.map((s) => ({ slot: s, player: roster[s]!.player }));
   const pickedBest =
     best !== null &&
@@ -70,39 +67,33 @@ export default function Results({ roster, sim, draws, trades, spent, onRestart }
   const matchedBest = !pickedBest && best !== null && yourAvg >= best.off - 1e-9;
   const [shareState, setShareState] = useState<"idle" | "copied" | "failed">("idle");
 
-  // the score IS the odds — a deterministic verdict, same squad, same result, always
-  const pctStr = sim.perfectPct === 0
-    ? "0%"
-    : sim.perfectPct < 0.05
-      ? "<0.05%"
-      : `${sim.perfectPct.toFixed(1)}%`;
-  const pctShown = Number(sim.perfectPct.toFixed(1)); // tier on what the player reads
-  const verdict = pctShown >= 40
-    ? "One coin flip from immortality."
-    : pctShown >= 20
-      ? "A true contender."
-      : pctShown >= 8
-        ? "Dangerous. Genuinely dangerous."
-        : pctShown >= 2
-          ? "A puncher's chance at forever."
-          : pctShown >= 0.5
-            ? "A long shot — but it's live."
-            : pctShown > 0
-              ? "A miracle required."
-              : "Watching the playoffs from the couch.";
+  // deterministic season: the average IS the record — same squad, same result, always
+  const { wins, losses } = recordFor(yourAvg);
+  const recordStr = `${wins}–${losses}`;
+  const verdict = wins >= 20
+    ? "PERFECT SEASON. IMMORTALITY."
+    : wins >= 19
+      ? "Lost the Super Bowl. One win short of forever."
+      : wins >= 18
+        ? "Died in the Conference Championship."
+        : wins >= 17
+          ? "One-and-done in the Divisional Round."
+          : wins >= 10
+            ? "Made the playoffs. The dream didn't survive them."
+            : "Watching the playoffs from the couch.";
 
   const shareText = () => {
     const lines = SLOTS.map((s) => {
       const sg = roster[s]!;
       return `${s}: ${sg.player.name} (${sg.player.ovr}) ${fmtM(sg.player.apy)}`;
     });
-    return `Dream Offense 🏈\nMy 20–0 odds: ${pctStr}\n${lines.join("\n")}\nSpent ${fmtM(spent)} of ${fmtM(BUDGET)}`;
+    return `Dream Offense 🏈\nMy season: ${recordStr} (${yourAvg.toFixed(1)} avg)\n${lines.join("\n")}\nSpent ${fmtM(spent)} of ${fmtM(BUDGET)}`;
   };
 
   const share = async () => {
     const avg = yourAvg;
     const blob = await renderShareCard({
-      record: pctStr,
+      record: recordStr,
       tag: verdict,
       five: yourFive.map(({ slot, player }) => ({
         slot,
@@ -141,11 +132,11 @@ export default function Results({ roster, sim, draws, trades, spent, onRestart }
   return (
     <div className="results">
       <div className="res-hero">
-        <div className="res-record">{pctStr}</div>
-        <div className="res-pct-label">CHANCE OF THE PERFECT SEASON</div>
+        <div className="res-record">{recordStr}</div>
         <div className="res-tag">{verdict}</div>
         <div className="res-sub">
-          spent {fmtM(spent)} of {fmtM(BUDGET)}
+          {yourAvg.toFixed(1)} average · a 91.0 average goes 20–0 · spent {fmtM(spent)} of{" "}
+          {fmtM(BUDGET)}
         </div>
       </div>
 
@@ -177,12 +168,12 @@ export default function Results({ roster, sim, draws, trades, spent, onRestart }
         )}
       </div>
 
-      {best && bestSim && !pickedBest && !matchedBest && (
+      {best && !pickedBest && !matchedBest && (
         <div className="res-squad res-best">
           <h3>
             🏆 BEST POSSIBLE SQUAD{" "}
             <span className="res-sub">
-              20–0 odds: {bestSim.perfectPct < 0.05 && bestSim.perfectPct > 0 ? "<0.05" : bestSim.perfectPct.toFixed(1)}%
+              would've gone {recordFor(best.off).wins}–{recordFor(best.off).losses}
             </span>
           </h3>
           {best.five.map(({ slot, player }) => (
