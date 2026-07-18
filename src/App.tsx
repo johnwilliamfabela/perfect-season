@@ -15,20 +15,24 @@ import {
   type Team,
 } from "./game/types";
 
-const GOLDEN_CHANCE = 0.18;
-const GOLDEN_DISCOUNT = 0.25; // you pay this fraction of the sticker price
+const ROOKIE_DEAL_CHANCE = 0.28; // ~21/32 teams qualify, so ~1 deal per game overall
+const ROOKIE_DEAL_DISCOUNT = 0.25; // you pay this fraction of the sticker price
 
-/** ~One spin per game the wheel comes up golden: one star on the drawn team at 75% off. */
+/**
+ * Rookie Deal: sometimes the drawn team's young star (3 or fewer years in the
+ * league) is still on his cheap rookie contract — the 73-9 "LeBron for $10M"
+ * moment, but with a real football explanation.
+ */
 function rollDeal(team: Team): { playerId: number; price: number } | null {
   const forced = new URLSearchParams(window.location.search).has("gold");
-  if (!forced && Math.random() >= GOLDEN_CHANCE) return null;
+  if (!forced && Math.random() >= ROOKIE_DEAL_CHANCE) return null;
   const stars = playersOf(team.name)
-    .filter((p) => p.ovr >= 84)
+    .filter((p) => p.ovr >= 84 && p.yearsPro <= 3)
     .sort((a, b) => b.ovr - a.ovr);
   if (stars.length === 0) return null;
   const r = Math.random();
   const pick = stars[r < 0.6 ? 0 : r < 0.85 ? Math.min(1, stars.length - 1) : Math.min(2, stars.length - 1)];
-  const price = Math.max(1_000_000, Math.round((pick.apy * GOLDEN_DISCOUNT) / 500_000) * 500_000);
+  const price = Math.max(1_000_000, Math.round((pick.apy * ROOKIE_DEAL_DISCOUNT) / 500_000) * 500_000);
   return { playerId: pick.id, price };
 }
 

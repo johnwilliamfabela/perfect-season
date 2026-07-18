@@ -39,7 +39,7 @@ function PlayerCard({ p, origPrice, signable, onRoster, out, net, canSwap, onSwa
           {p.ovr}
           <span className="ovr-label">OVR</span>
         </span>
-        {origPrice !== null && <span className="badge-gold">GOLDEN DEAL</span>}
+        {origPrice !== null && <span className="badge-gold">ROOKIE DEAL</span>}
       </div>
       <div className="pcard-name">{p.name}</div>
       {out ? (
@@ -71,6 +71,11 @@ function PlayerCard({ p, origPrice, signable, onRoster, out, net, canSwap, onSwa
         <div className="pcard-price">
           {origPrice !== null && <s className="pcard-was">{fmtM(origPrice)}</s>}
           {fmtM(p.apy)}
+        </div>
+      )}
+      {origPrice !== null && (
+        <div className="pcard-deal-note">
+          Year {p.yearsPro + 1} — still on his rookie contract
         </div>
       )}
       <button
