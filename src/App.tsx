@@ -2,17 +2,35 @@ import { useState } from "react";
 import TeamBoard from "./components/TeamBoard";
 import Results, { type TradeRecord } from "./components/Results";
 import Wheel from "./components/Wheel";
-import { fmtM } from "./game/data";
+import { fmtM, playersOf } from "./game/data";
 import { drawTeam, openSlots, planFor, signingCost } from "./game/engine";
 import {
   BUDGET,
   SLOTS,
   TRADE_FEE,
+  type DrawRecord,
   type Player,
   type Roster,
   type SlotId,
   type Team,
 } from "./game/types";
+
+const GOLDEN_CHANCE = 0.18;
+const GOLDEN_DISCOUNT = 0.25; // you pay this fraction of the sticker price
+
+/** ~One spin per game the wheel comes up golden: one star on the drawn team at 75% off. */
+function rollDeal(team: Team): { playerId: number; price: number } | null {
+  const forced = new URLSearchParams(window.location.search).has("gold");
+  if (!forced && Math.random() >= GOLDEN_CHANCE) return null;
+  const stars = playersOf(team.name)
+    .filter((p) => p.ovr >= 84)
+    .sort((a, b) => b.ovr - a.ovr);
+  if (stars.length === 0) return null;
+  const r = Math.random();
+  const pick = stars[r < 0.6 ? 0 : r < 0.85 ? Math.min(1, stars.length - 1) : Math.min(2, stars.length - 1)];
+  const price = Math.max(1_000_000, Math.round((pick.apy * GOLDEN_DISCOUNT) / 500_000) * 500_000);
+  return { playerId: pick.id, price };
+}
 
 type Phase = "intro" | "spinning" | "picking" | "results";
 
@@ -23,7 +41,8 @@ export default function App() {
   const [roster, setRoster] = useState<Roster>(EMPTY_ROSTER);
   const [remaining, setRemaining] = useState(BUDGET);
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
-  const [drawnTeams, setDrawnTeams] = useState<string[]>([]);
+  const [draws, setDraws] = useState<DrawRecord[]>([]);
+  const [deal, setDeal] = useState<DrawRecord["deal"]>(null);
   const [trades, setTrades] = useState<TradeRecord[]>([]);
   const [spinKey, setSpinKey] = useState(0);
 
@@ -33,10 +52,11 @@ export default function App() {
   const start = () => {
     setRoster(EMPTY_ROSTER);
     setRemaining(BUDGET);
-    setDrawnTeams([]);
+    setDraws([]);
     setTrades([]);
     const team = drawTeam(BUDGET, EMPTY_ROSTER, new Set());
     setCurrentTeam(team);
+    setDeal(rollDeal(team));
     setSpinKey((k) => k + 1);
     setPhase("spinning");
   };
@@ -49,15 +69,17 @@ export default function App() {
     const nextRemaining = remaining - signingCost(p, roster, outSlot);
     setRoster(nextRoster);
     setRemaining(nextRemaining);
-    setDrawnTeams([...drawnTeams, currentTeam.name]);
+    const nextDraws = [...draws, { team: currentTeam.name, deal }];
+    setDraws(nextDraws);
     if (openSlots(nextRoster).length === 0) {
       setPhase("results"); // fifth slot filled — straight to the season
     } else {
       const nextIds = new Set(
         SLOTS.flatMap((s) => (nextRoster[s] ? [nextRoster[s]!.player.id] : [])),
       );
-      const team = drawTeam(nextRemaining, nextRoster, nextIds, [...drawnTeams, currentTeam.name]);
+      const team = drawTeam(nextRemaining, nextRoster, nextIds, nextDraws.map((d) => d.team));
       setCurrentTeam(team);
+      setDeal(rollDeal(team));
       setSpinKey((k) => k + 1);
       setPhase("spinning");
     }
@@ -155,13 +177,19 @@ export default function App() {
 
       {(phase === "spinning" || phase === "picking") && currentTeam && (
         <>
-          <Wheel landing={currentTeam} spinKey={spinKey} onDone={() => setPhase("picking")} />
+          <Wheel
+            landing={currentTeam}
+            spinKey={spinKey}
+            golden={deal !== null}
+            onDone={() => setPhase("picking")}
+          />
           {phase === "picking" && (
             <TeamBoard
               team={currentTeam}
               roster={roster}
               remaining={remaining}
               signedIds={signedIds}
+              deal={deal}
               onSign={sign}
             />
           )}
@@ -169,7 +197,7 @@ export default function App() {
       )}
 
       {phase === "results" && (
-        <Results roster={roster} drawnTeams={drawnTeams} trades={trades} spent={spent} onRestart={start} />
+        <Results roster={roster} draws={draws} trades={trades} spent={spent} onRestart={start} />
       )}
     </div>
   );

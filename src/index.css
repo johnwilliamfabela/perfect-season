@@ -286,3 +286,21 @@ body {
 .intro-steps { text-align: left; max-width: 560px; margin: 0 auto 26px; display: grid; gap: 15px; }
 .step-h { font-family: var(--mono); font-size: 12px; letter-spacing: 3px; color: var(--hot); font-weight: 800; }
 .step-p { color: var(--dim); font-size: 14.5px; margin-top: 2px; }
+
+/* golden deal */
+.wheel-pointer-gold {
+  border-color: var(--gold);
+  box-shadow: 0 0 22px rgba(255, 215, 106, 0.55), inset 0 0 16px rgba(255, 215, 106, 0.15);
+}
+.wheel-pointer-gold::before, .wheel-pointer-gold::after { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+.wheel-golden-tag {
+  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); z-index: 4;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--gold);
+  text-shadow: 0 0 12px rgba(255, 215, 106, 0.8);
+}
+.pcard-gold { border-color: var(--gold); box-shadow: 0 0 16px rgba(255, 215, 106, 0.22); }
+.badge-gold {
+  font-size: 9px; letter-spacing: 1px; font-weight: 800; color: #10131a;
+  background: var(--gold); border-radius: 4px; padding: 2px 6px; margin-left: 8px;
+}
+.pcard-was { color: var(--dim); font-weight: 400; margin-right: 7px; }

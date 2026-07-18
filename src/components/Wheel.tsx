@@ -6,9 +6,10 @@ const CELL = 110; // px per logo cell
 const EASING = "transform 2.2s cubic-bezier(0.12, 0.8, 0.16, 1)";
 
 /** Horizontal logo strip that decelerates onto the drawn team. */
-export default function Wheel({ landing, spinKey, onDone }: {
+export default function Wheel({ landing, spinKey, golden, onDone }: {
   landing: Team;
   spinKey: number;
+  golden: boolean;
   onDone: () => void;
 }) {
   const stripRef = useRef<HTMLDivElement>(null);
@@ -56,7 +57,8 @@ export default function Wheel({ landing, spinKey, onDone }: {
 
   return (
     <div className="wheel">
-      <div className="wheel-pointer" />
+      <div className={`wheel-pointer ${golden ? "wheel-pointer-gold" : ""}`} />
+      {golden && <div className="wheel-golden-tag">GOLDEN DEAL</div>}
       <div
         ref={stripRef}
         className="wheel-strip"

@@ -3,6 +3,7 @@ import {
   BUDGET,
   SLOT_POS,
   SLOTS,
+  type DrawRecord,
   type GameResult,
   type Player,
   type Roster,
@@ -144,25 +145,27 @@ export function runSimsOff(off: number): SimSummary {
  * budget: one player per drawn team, one per slot. Exhaustive over slot->team
  * assignments x top candidates, keeping the highest weighted OVR under budget.
  */
-export function bestPossible(drawnTeams: string[]): { five: { slot: SlotId; player: Player }[]; off: number; cost: number } | null {
+export function bestPossible(draws: DrawRecord[]): { five: { slot: SlotId; player: Player }[]; off: number; cost: number } | null {
   const K = 5; // candidates per (team, slot)
-  const cands: Player[][][] = drawnTeams.map((team) =>
+  // golden-deal prices apply only on the draw that offered them
+  const cands: Player[][][] = draws.map(({ team, deal }) =>
     SLOTS.map((slot) =>
       playersOf(team)
         .filter((p) => p.pos === SLOT_POS[slot])
+        .map((p) => (deal && p.id === deal.playerId ? { ...p, apy: deal.price } : p))
         .sort((a, b) => b.ovr - a.ovr)
         .slice(0, K),
     ),
   );
 
-  // all ways to assign 5 distinct drawn teams (possibly more than 5 draws) to the 5 slots
+  // all ways to assign 5 distinct draws (possibly more than 5) to the 5 slots
   const perms: number[][] = [];
   const permute = (rest: number[], acc: number[]) => {
     if (acc.length === SLOTS.length) return void perms.push(acc);
     for (let i = 0; i < rest.length; i++)
       permute([...rest.slice(0, i), ...rest.slice(i + 1)], [...acc, rest[i]]);
   };
-  permute(drawnTeams.map((_, i) => i), []);
+  permute(draws.map((_, i) => i), []);
 
   let best: { five: { slot: SlotId; player: Player }[]; off: number; cost: number } | null = null;
 

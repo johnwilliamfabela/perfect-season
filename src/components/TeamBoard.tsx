@@ -5,6 +5,7 @@ import {
   SLOTS,
   SLOT_POS,
   TRADE_FEE,
+  type DrawRecord,
   type Player,
   type Pos,
   type Roster,
@@ -15,8 +16,9 @@ import {
 
 const POS_ORDER: Pos[] = ["QB", "RB", "WR", "TE"];
 
-function PlayerCard({ p, signable, onRoster, out, net, canSwap, onSwap, onSign }: {
+function PlayerCard({ p, origPrice, signable, onRoster, out, net, canSwap, onSwap, onSign }: {
   p: Player;
+  origPrice: number | null; // sticker price when this card is a golden deal
   signable: boolean;
   onRoster: boolean;
   out: Signing | null;
@@ -31,12 +33,13 @@ function PlayerCard({ p, signable, onRoster, out, net, canSwap, onSwap, onSign }
       ? `${fmtM(p.apy)} + ${fmtM(TRADE_FEE)} fee − ${out.player.name}'s ${fmtM(out.player.apy)} back`
       : undefined;
   return (
-    <div className={`pcard ${signable ? "" : "pcard-off"}`}>
+    <div className={`pcard ${signable ? "" : "pcard-off"} ${origPrice !== null ? "pcard-gold" : ""}`}>
       <div className="pcard-top">
         <span className={`ovr ${p.ovr >= 90 ? "ovr-elite" : p.ovr >= 80 ? "ovr-good" : ""}`}>
           {p.ovr}
           <span className="ovr-label">OVR</span>
         </span>
+        {origPrice !== null && <span className="badge-gold">GOLDEN DEAL</span>}
       </div>
       <div className="pcard-name">{p.name}</div>
       {out ? (
@@ -65,7 +68,10 @@ function PlayerCard({ p, signable, onRoster, out, net, canSwap, onSwap, onSign }
           </div>
         </>
       ) : (
-        <div className="pcard-price">{fmtM(p.apy)}</div>
+        <div className="pcard-price">
+          {origPrice !== null && <s className="pcard-was">{fmtM(origPrice)}</s>}
+          {fmtM(p.apy)}
+        </div>
       )}
       <button
         className={`pcard-cta ${out && !onRoster ? "pcard-cta-trade" : ""}`}
@@ -80,11 +86,12 @@ function PlayerCard({ p, signable, onRoster, out, net, canSwap, onSwap, onSign }
   );
 }
 
-export default function TeamBoard({ team, roster, remaining, signedIds, onSign }: {
+export default function TeamBoard({ team, roster, remaining, signedIds, deal, onSign }: {
   team: Team;
   roster: Roster;
   remaining: number;
   signedIds: Set<number>;
+  deal: DrawRecord["deal"];
   onSign: (p: Player, outSlot?: SlotId) => void;
 }) {
   const board = teamBoard(team);
@@ -115,22 +122,27 @@ export default function TeamBoard({ team, roster, remaining, signedIds, onSign }
                 {pos}
                 {isTrade && <span className="badge-trade">TRADE</span>}
               </div>
-              {board[pos].map((p) => (
-                <PlayerCard
-                  key={p.id}
-                  p={p}
-                  signable={canSign(p, remaining, roster, signedIds, outSlot)}
-                  onRoster={signedIds.has(p.id)}
-                  out={isTrade ? out : null}
-                  net={signingCost(p, roster, outSlot)}
-                  canSwap={isTrade && filledSlots.length > 1}
-                  onSwap={() => {
-                    const other = filledSlots.find((s) => roster[s] !== out);
-                    if (other) setOutSel({ ...outSel, [pos]: other });
-                  }}
-                  onSign={() => onSign(p, outSlot)}
-                />
-              ))}
+              {board[pos].map((raw) => {
+                const isDeal = deal !== null && raw.id === deal.playerId;
+                const p = isDeal ? { ...raw, apy: deal.price } : raw;
+                return (
+                  <PlayerCard
+                    key={p.id}
+                    p={p}
+                    origPrice={isDeal ? raw.apy : null}
+                    signable={canSign(p, remaining, roster, signedIds, outSlot)}
+                    onRoster={signedIds.has(p.id)}
+                    out={isTrade ? out : null}
+                    net={signingCost(p, roster, outSlot)}
+                    canSwap={isTrade && filledSlots.length > 1}
+                    onSwap={() => {
+                      const other = filledSlots.find((s) => roster[s] !== out);
+                      if (other) setOutSel({ ...outSel, [pos]: other });
+                    }}
+                    onSign={() => onSign(p, outSlot)}
+                  />
+                );
+              })}
             </div>
           );
         })}

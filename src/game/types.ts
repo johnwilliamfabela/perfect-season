@@ -45,6 +45,12 @@ export const BUDGET = 100_000_000;
 export const TRADE_FEE = 10_000_000;
 export const MIN_SALARY = 1_000_000;
 
+/** One wheel draw: the team, and the golden-deal discount if that spin hit. */
+export interface DrawRecord {
+  team: string;
+  deal: { playerId: number; price: number } | null;
+}
+
 /** How the season ended: champion, or the round of the final loss. */
 export type SeasonExit = "CHAMP" | "SB" | "CONF" | "DIV" | "MISSED";
 
