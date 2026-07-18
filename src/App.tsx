@@ -59,7 +59,8 @@ export default function App() {
       const nextIds = new Set(
         SLOTS.flatMap((s) => (nextRoster[s] ? [nextRoster[s]!.player.id] : [])),
       );
-      const team = drawTeam(nextRemaining, nextRoster, nextIds, nextDraws.map((d) => d.team));
+      const nextTradesUsed = trades.length + (out ? 1 : 0);
+      const team = drawTeam(nextRemaining, nextRoster, nextIds, nextDraws.map((d) => d.team), nextTradesUsed === 0);
       setCurrentTeam(team);
       setSpinKey((k) => k + 1);
       setPhase("spinning");
@@ -144,7 +145,7 @@ export default function App() {
               <div className="step-h">TRADE</div>
               <div className="step-p">
                 Position filled? Swap him out — pay the new salary plus a {fmtM(TRADE_FEE)} fee,
-                and the old contract comes back.
+                and the old contract comes back. One trade per season.
               </div>
             </div>
             <div className="step">
@@ -175,6 +176,7 @@ export default function App() {
               roster={roster}
               remaining={remaining}
               signedIds={signedIds}
+              tradeAllowed={trades.length === 0}
               onSign={sign}
             />
           )}

@@ -56,17 +56,19 @@ export function canSign(
   roster: Roster,
   signedIds: Set<number>,
   outSlot?: SlotId,
+  tradeAllowed = true,
 ): boolean {
   if (signedIds.has(p.id)) return false;
   const { out } = planFor(p, roster, outSlot);
+  if (out && !tradeAllowed) return false; // one trade per season
   // keep a league-minimum reserve for every slot still unfilled afterwards
   const reserve = (openSlots(roster).length - (out ? 0 : 1)) * MIN_SALARY;
   return signingCost(p, roster, outSlot) <= remaining - reserve;
 }
 
 /** A team is drawable if at least one of its players is signable right now. */
-function isDrawable(team: Team, remaining: number, roster: Roster, signedIds: Set<number>): boolean {
-  return playersOf(team.name).some((p) => canSign(p, remaining, roster, signedIds));
+function isDrawable(team: Team, remaining: number, roster: Roster, signedIds: Set<number>, tradeAllowed: boolean): boolean {
+  return playersOf(team.name).some((p) => canSign(p, remaining, roster, signedIds, undefined, tradeAllowed));
 }
 
 export function drawTeam(
@@ -74,12 +76,13 @@ export function drawTeam(
   roster: Roster,
   signedIds: Set<number>,
   excludeTeams: string[] = [],
+  tradeAllowed = true,
 ): Team {
   // never draw a team twice in one game (falls back only if that empties the pool)
   const candidates = TEAMS.filter(
-    (t) => !excludeTeams.includes(t.name) && isDrawable(t, remaining, roster, signedIds),
+    (t) => !excludeTeams.includes(t.name) && isDrawable(t, remaining, roster, signedIds, tradeAllowed),
   );
-  const pool = candidates.length > 0 ? candidates : TEAMS.filter((t) => isDrawable(t, remaining, roster, signedIds));
+  const pool = candidates.length > 0 ? candidates : TEAMS.filter((t) => isDrawable(t, remaining, roster, signedIds, tradeAllowed));
   return pool[Math.floor(Math.random() * pool.length)];
 }
 

@@ -99,11 +99,12 @@ function PlayerCard({ p, origPrice, signable, onRoster, out, net, canSwap, onSwa
   );
 }
 
-export default function TeamBoard({ team, roster, remaining, signedIds, onSign }: {
+export default function TeamBoard({ team, roster, remaining, signedIds, tradeAllowed, onSign }: {
   team: Team;
   roster: Roster;
   remaining: number;
   signedIds: Set<number>;
+  tradeAllowed: boolean;
   onSign: (p: Player, outSlot?: SlotId) => void;
 }) {
   const board = teamBoard(team);
@@ -118,7 +119,9 @@ export default function TeamBoard({ team, roster, remaining, signedIds, onSign }
           <div className="board-team">{team.name}</div>
         </div>
         {anyTrade && (
-          <div className="board-note">Trades cost salary + {fmtM(TRADE_FEE)}</div>
+          <div className="board-note">
+            {tradeAllowed ? <>Trades cost salary + {fmtM(TRADE_FEE)} · one per season</> : "Trade used"}
+          </div>
         )}
       </div>
       <div className="board-cols" style={{ ["--cols" as string]: POS_ORDER.length }}>
@@ -141,7 +144,7 @@ export default function TeamBoard({ team, roster, remaining, signedIds, onSign }
                     key={p.id}
                     p={p}
                     origPrice={isDeal ? priceFor(p.ovr, p.pos) : null}
-                    signable={canSign(p, remaining, roster, signedIds, outSlot)}
+                    signable={canSign(p, remaining, roster, signedIds, outSlot, tradeAllowed)}
                     onRoster={signedIds.has(p.id)}
                     out={isTrade ? out : null}
                     net={signingCost(p, roster, outSlot)}
