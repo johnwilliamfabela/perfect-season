@@ -52,14 +52,15 @@ export default function Results({ roster, drawnTeams, trades, spent, onRestart }
   const sim = useMemo(() => runSims(roster), [roster]);
   const best = useMemo(() => bestPossible(drawnTeams), [drawnTeams]);
   const bestSim = useMemo(() => (best ? runSimsOff(best.off) : null), [best]);
-  const f = sim.featured;
+  const f = sim.sampled; // the season you actually lived — 20-0 is genuinely hittable
   const yourFive = SLOTS.map((s) => ({ slot: s, player: roster[s]!.player }));
   const pickedBest =
     best !== null &&
     new Set(best.five.map((x) => x.player.id)).size === 5 &&
     best.five.every((x) => yourFive.some((y) => y.player.id === x.player.id));
-  // different five, but the ideal squad couldn't out-record you — still a win
-  const matchedBest = !pickedBest && bestSim !== null && f.wins >= bestSim.featured.wins;
+  const yourAvg = yourFive.reduce((s, x) => s + x.player.ovr, 0) / yourFive.length;
+  // different five, but rated even with the ideal squad — the process was still perfect
+  const matchedBest = !pickedBest && best !== null && yourAvg >= best.off - 1e-9;
   const [shareState, setShareState] = useState<"idle" | "copied" | "failed">("idle");
 
   // story is a pure function of the win count so record and tag always agree:
@@ -85,7 +86,7 @@ export default function Results({ roster, drawnTeams, trades, spent, onRestart }
   };
 
   const share = async () => {
-    const avg = yourFive.reduce((s, x) => s + x.player.ovr, 0) / yourFive.length;
+    const avg = yourAvg;
     const blob = await renderShareCard({
       record: `${f.wins}–${f.losses}`,
       tag: exitTag,
@@ -131,7 +132,8 @@ export default function Results({ roster, drawnTeams, trades, spent, onRestart }
         </div>
         <div className="res-tag">{exitTag}</div>
         <div className="res-sub">
-          spent {fmtM(spent)} of {fmtM(BUDGET)}
+          spent {fmtM(spent)} of {fmtM(BUDGET)} · this squad goes 20–0 in{" "}
+          {sim.perfectPct < 0.05 ? "<0.05" : sim.perfectPct.toFixed(1)}% of seasons
         </div>
       </div>
 
@@ -142,7 +144,7 @@ export default function Results({ roster, drawnTeams, trades, spent, onRestart }
       )}
       {matchedBest && (
         <div className="res-best-pick">
-          🏆 MAXED OUT — the best possible squad wouldn't have done any better.
+          🏆 MAXED OUT — your five rates even with the best possible squad.
         </div>
       )}
 

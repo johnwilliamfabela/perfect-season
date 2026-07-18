@@ -62,6 +62,7 @@ export interface SimSummary {
   avgWins: number;
   avgPF: number;
   avgPA: number;
-  featured: GameResult; // representative (median-wins) season
+  featured: GameResult; // median season — the stable benchmark
+  sampled: GameResult; // one honestly-rolled season — the one you "lived"
   offRating: number;
 }

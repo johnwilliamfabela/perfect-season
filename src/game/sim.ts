@@ -126,7 +126,9 @@ export function runSimsOff(off: number): SimSummary {
   }
   results.sort((a, b) => a.wins - b.wins);
   const featured = results[Math.floor(results.length / 2)];
+  const sampled = results[Math.floor(Math.random() * results.length)];
   return {
+    sampled,
     perfectPct: (100 * perfectCount) / N_SIMS,
     sbReachPct: (100 * sbCount) / N_SIMS,
     avgWins: winSum / N_SIMS,
