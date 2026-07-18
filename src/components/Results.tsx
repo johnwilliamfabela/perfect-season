@@ -1,8 +1,16 @@
 import { useMemo, useState } from "react";
 import { TEAMS, fmtM } from "../game/data";
 import { renderShareCard } from "../game/shareCard";
-import { bestPossible, runSims, runSimsOff } from "../game/sim";
-import { BUDGET, SLOTS, type DrawRecord, type Player, type Roster, type SlotId } from "../game/types";
+import { bestPossible, runSimsOff } from "../game/sim";
+import {
+  BUDGET,
+  SLOTS,
+  type DrawRecord,
+  type Player,
+  type Roster,
+  type SimSummary,
+  type SlotId,
+} from "../game/types";
 
 export interface TradeRecord {
   out: string;
@@ -42,14 +50,14 @@ function TotalRow({ five, cost }: { five: { slot: SlotId; player: Player }[]; co
   );
 }
 
-export default function Results({ roster, draws, trades, spent, onRestart }: {
+export default function Results({ roster, sim, draws, trades, spent, onRestart }: {
   roster: Roster;
+  sim: SimSummary;
   draws: DrawRecord[];
   trades: TradeRecord[];
   spent: number;
   onRestart: () => void;
 }) {
-  const sim = useMemo(() => runSims(roster), [roster]);
   const best = useMemo(() => bestPossible(draws), [draws]);
   const bestSim = useMemo(() => (best ? runSimsOff(best.off) : null), [best]);
   const f = sim.sampled; // the season you actually lived — 20-0 is genuinely hittable
