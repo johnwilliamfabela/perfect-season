@@ -20,9 +20,16 @@ export function priceFor(ovr: number, pos: Pos): number {
   return 1_000_000;
 }
 
+/** 90+ stars still on rookie contracts (years 1-4) are permanently 30% off. */
+export function isRookieDeal(p: { ovr: number; yearsPro: number }): boolean {
+  return p.ovr >= 90 && p.yearsPro <= 3;
+}
+
 export const PLAYERS = (rawPlayers as unknown as Player[]).map((p) => ({
   ...p,
-  apy: priceFor(p.ovr, p.pos),
+  apy: isRookieDeal(p)
+    ? Math.max(1_000_000, Math.round((priceFor(p.ovr, p.pos) * 0.7) / 500_000) * 500_000)
+    : priceFor(p.ovr, p.pos),
 }));
 
 /** Offense rating: plain average OVR of the five — every slot counts the same. */

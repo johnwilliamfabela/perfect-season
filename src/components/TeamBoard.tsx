@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { fmtM } from "../game/data";
+import { fmtM, isRookieDeal, priceFor } from "../game/data";
 import { canSign, planFor, signingCost, slotForPos, teamBoard } from "../game/engine";
 import {
   SLOTS,
   SLOT_POS,
   TRADE_FEE,
-  type DrawRecord,
   type Player,
   type Pos,
   type Roster,
@@ -74,9 +73,7 @@ function PlayerCard({ p, origPrice, signable, onRoster, out, net, canSwap, onSwa
         </div>
       )}
       {origPrice !== null && (
-        <div className="pcard-deal-note">
-          Year {p.yearsPro + 1} of his rookie contract — this spin only
-        </div>
+        <div className="pcard-deal-note">Year {p.yearsPro + 1} of his rookie contract</div>
       )}
       <button
         className={`pcard-cta ${out && !onRoster ? "pcard-cta-trade" : ""}`}
@@ -91,12 +88,11 @@ function PlayerCard({ p, origPrice, signable, onRoster, out, net, canSwap, onSwa
   );
 }
 
-export default function TeamBoard({ team, roster, remaining, signedIds, deal, onSign }: {
+export default function TeamBoard({ team, roster, remaining, signedIds, onSign }: {
   team: Team;
   roster: Roster;
   remaining: number;
   signedIds: Set<number>;
-  deal: DrawRecord["deal"];
   onSign: (p: Player, outSlot?: SlotId) => void;
 }) {
   const board = teamBoard(team);
@@ -127,14 +123,13 @@ export default function TeamBoard({ team, roster, remaining, signedIds, deal, on
                 {pos}
                 {isTrade && <span className="badge-trade">TRADE</span>}
               </div>
-              {board[pos].map((raw) => {
-                const isDeal = deal !== null && raw.id === deal.playerId;
-                const p = isDeal ? { ...raw, apy: deal.price } : raw;
+              {board[pos].map((p) => {
+                const isDeal = isRookieDeal(p);
                 return (
                   <PlayerCard
                     key={p.id}
                     p={p}
-                    origPrice={isDeal ? raw.apy : null}
+                    origPrice={isDeal ? priceFor(p.ovr, p.pos) : null}
                     signable={canSign(p, remaining, roster, signedIds, outSlot)}
                     onRoster={signedIds.has(p.id)}
                     out={isTrade ? out : null}

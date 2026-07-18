@@ -2,7 +2,7 @@ import { useState } from "react";
 import TeamBoard from "./components/TeamBoard";
 import Results, { type TradeRecord } from "./components/Results";
 import Wheel from "./components/Wheel";
-import { fmtM, playersOf } from "./game/data";
+import { fmtM, isRookieDeal, playersOf } from "./game/data";
 import { drawTeam, openSlots, planFor, signingCost } from "./game/engine";
 import {
   BUDGET,
@@ -15,27 +15,6 @@ import {
   type Team,
 } from "./game/types";
 
-const ROOKIE_DEAL_CHANCE = 0.5; // only ~9/32 teams have a 90+ rookie-contract star → ~1 deal/game
-const ROOKIE_DEAL_DISCOUNT = 0.25; // you pay this fraction of the sticker price
-
-/**
- * Rookie Deal: the drawn team's 90+ superstar who is GENUINELY still on his
- * rookie contract (years 1-4) is sometimes available at a fraction of his
- * price, this spin only. 90+ so it always matters; the label is literally
- * true, so it explains itself.
- */
-function rollDeal(team: Team): { playerId: number; price: number } | null {
-  const forced = new URLSearchParams(window.location.search).has("gold");
-  if (!forced && Math.random() >= ROOKIE_DEAL_CHANCE) return null;
-  const stars = playersOf(team.name)
-    .filter((p) => p.ovr >= 90 && p.yearsPro <= 3)
-    .sort((a, b) => b.ovr - a.ovr);
-  if (stars.length === 0) return null;
-  const r = Math.random();
-  const pick = stars[r < 0.6 ? 0 : r < 0.85 ? Math.min(1, stars.length - 1) : Math.min(2, stars.length - 1)];
-  const price = Math.max(1_000_000, Math.round((pick.apy * ROOKIE_DEAL_DISCOUNT) / 500_000) * 500_000);
-  return { playerId: pick.id, price };
-}
 
 type Phase = "intro" | "spinning" | "picking" | "results";
 
@@ -47,7 +26,6 @@ export default function App() {
   const [remaining, setRemaining] = useState(BUDGET);
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
   const [draws, setDraws] = useState<DrawRecord[]>([]);
-  const [deal, setDeal] = useState<DrawRecord["deal"]>(null);
   const [trades, setTrades] = useState<TradeRecord[]>([]);
   const [spinKey, setSpinKey] = useState(0);
 
@@ -61,7 +39,6 @@ export default function App() {
     setTrades([]);
     const team = drawTeam(BUDGET, EMPTY_ROSTER, new Set());
     setCurrentTeam(team);
-    setDeal(rollDeal(team));
     setSpinKey((k) => k + 1);
     setPhase("spinning");
   };
@@ -74,7 +51,7 @@ export default function App() {
     const nextRemaining = remaining - signingCost(p, roster, outSlot);
     setRoster(nextRoster);
     setRemaining(nextRemaining);
-    const nextDraws = [...draws, { team: currentTeam.name, deal }];
+    const nextDraws = [...draws, { team: currentTeam.name, deal: null }];
     setDraws(nextDraws);
     if (openSlots(nextRoster).length === 0) {
       setPhase("results"); // fifth slot filled — straight to the season
@@ -84,7 +61,6 @@ export default function App() {
       );
       const team = drawTeam(nextRemaining, nextRoster, nextIds, nextDraws.map((d) => d.team));
       setCurrentTeam(team);
-      setDeal(rollDeal(team));
       setSpinKey((k) => k + 1);
       setPhase("spinning");
     }
@@ -159,7 +135,10 @@ export default function App() {
             </div>
             <div className="step">
               <div className="step-h">SALARIES</div>
-              <div className="step-p">Prices scale with rating and position scarcity. You get {fmtM(BUDGET)}.</div>
+              <div className="step-p">
+                Prices scale with rating and position scarcity — and stars still on rookie
+                contracts come cheap. You get {fmtM(BUDGET)}.
+              </div>
             </div>
             <div className="step">
               <div className="step-h">TRADE</div>
@@ -185,7 +164,7 @@ export default function App() {
           <Wheel
             landing={currentTeam}
             spinKey={spinKey}
-            golden={deal !== null}
+            golden={playersOf(currentTeam.name).some(isRookieDeal)}
             onDone={() => setPhase("picking")}
           />
           {phase === "picking" && (
@@ -194,7 +173,6 @@ export default function App() {
               roster={roster}
               remaining={remaining}
               signedIds={signedIds}
-              deal={deal}
               onSign={sign}
             />
           )}

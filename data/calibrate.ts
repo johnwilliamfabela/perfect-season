@@ -2,12 +2,15 @@
    squad and what are its perfect-season odds? Run: npx tsx data/calibrate.ts */
 import { TEAMS } from "../src/game/data";
 import { bestPossible, simSeason } from "../src/game/sim";
+import type { DrawRecord } from "../src/game/types";
 
-function draw5(): string[] {
-  const names = TEAMS.map((t) => t.name);
-  const out: string[] = [];
-  for (let i = 0; i < 5; i++) out.push(names[Math.floor(Math.random() * names.length)]);
-  return out;
+function draw5(): DrawRecord[] {
+  const names = [...TEAMS.map((t) => t.name)];
+  for (let i = names.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [names[i], names[j]] = [names[j], names[i]];
+  }
+  return names.slice(0, 5).map((team) => ({ team, deal: null }));
 }
 
 function perfectPct(off: number, n = 4000): number {
