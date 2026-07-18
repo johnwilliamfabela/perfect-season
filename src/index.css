@@ -105,9 +105,18 @@ body {
 .wheel::before { left: 0; background: linear-gradient(90deg, var(--panel), transparent); }
 .wheel::after { right: 0; background: linear-gradient(-90deg, var(--panel), transparent); }
 .wheel-pointer {
-  position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; z-index: 3;
-  background: var(--hot); box-shadow: 0 0 14px var(--hot);
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 92px; height: 92px; z-index: 3; pointer-events: none;
+  border: 2px solid var(--hot); border-radius: 14px;
+  box-shadow: 0 0 18px rgba(52, 211, 153, 0.45), inset 0 0 14px rgba(52, 211, 153, 0.12);
 }
+.wheel-pointer::before, .wheel-pointer::after {
+  content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+  width: 3px; height: 10px; background: var(--hot); box-shadow: 0 0 10px var(--hot);
+  border-radius: 2px;
+}
+.wheel-pointer::before { top: -13px; }
+.wheel-pointer::after { bottom: -13px; }
 .wheel-strip {
   display: flex; height: 100%; align-items: center;
   padding-left: calc(50% - 55px);
