@@ -62,13 +62,19 @@ export default function Results({ roster, drawnTeams, trades, spent, onRestart }
   const matchedBest = !pickedBest && bestSim !== null && f.wins >= bestSim.featured.wins;
   const [shareState, setShareState] = useState<"idle" | "copied" | "failed">("idle");
 
-  const exitTag = {
-    CHAMP: "PERFECT SEASON. IMMORTALITY.",
-    SB: "Lost the Super Bowl. One win short of forever.",
-    CONF: "Died in the Conference Championship.",
-    DIV: "The run died in the Divisional Round.",
-    MISSED: "Watching the playoffs from the couch.",
-  }[f.exit];
+  // story is a pure function of the win count so record and tag always agree:
+  // 20 = perfect, 19 = SB loss, 18 = conference, 17 = divisional, then generic tiers
+  const exitTag = f.perfect
+    ? "PERFECT SEASON. IMMORTALITY."
+    : f.wins >= 19
+      ? "Lost the Super Bowl. One win short of forever."
+      : f.wins >= 18
+        ? "Died in the Conference Championship."
+        : f.wins >= 17
+          ? "One-and-done in the Divisional Round."
+          : f.exit !== "MISSED"
+            ? "Made the playoffs. The dream didn't survive them."
+            : "Watching the playoffs from the couch.";
 
   const shareText = () => {
     const lines = SLOTS.map((s) => {
