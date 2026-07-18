@@ -61,6 +61,9 @@ export default function Results({ roster, draws, trades, spent, onRestart }: {
   const yourAvg = yourFive.reduce((s, x) => s + x.player.ovr, 0) / yourFive.length;
   // different five, but rated even with the ideal squad — the process was still perfect
   const matchedBest = !pickedBest && best !== null && yourAvg >= best.off - 1e-9;
+  // your rolled season kept pace with the ideal squad's benchmark record
+  const recordMatch =
+    !pickedBest && !matchedBest && bestSim !== null && f.wins >= bestSim.featured.wins;
   const [shareState, setShareState] = useState<"idle" | "copied" | "failed">("idle");
 
   // story is a pure function of the win count so record and tag always agree:
@@ -147,6 +150,11 @@ export default function Results({ roster, draws, trades, spent, onRestart }: {
           🏆 MAXED OUT — your five rates even with the best possible squad.
         </div>
       )}
+      {recordMatch && (
+        <div className="res-best-pick">
+          🏆 CAN'T BEAT THAT — you matched the best possible squad's record.
+        </div>
+      )}
 
       <div className="res-squad">
         <h3>🏈 YOUR SQUAD</h3>
@@ -165,7 +173,7 @@ export default function Results({ roster, draws, trades, spent, onRestart }: {
         )}
       </div>
 
-      {best && bestSim && !pickedBest && !matchedBest && (
+      {best && bestSim && !pickedBest && !matchedBest && !recordMatch && (
         <div className="res-squad res-best">
           <h3>
             🏆 BEST POSSIBLE SQUAD{" "}

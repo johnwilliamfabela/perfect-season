@@ -144,6 +144,7 @@ body {
 
 /* player card */
 .pcard {
+  position: relative;
   text-align: left; background: var(--panel-2); border: 1px solid var(--line);
   border-radius: 12px; padding: 12px; color: var(--text);
   transition: transform 0.08s ease, border-color 0.08s ease;
@@ -294,13 +295,15 @@ body {
 }
 .wheel-pointer-gold::before, .wheel-pointer-gold::after { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .wheel-golden-tag {
-  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); z-index: 4;
+  position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%); z-index: 4;
   font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--gold);
-  text-shadow: 0 0 12px rgba(255, 215, 106, 0.8);
+  background: var(--bg); border: 1px solid var(--gold); border-radius: 999px;
+  padding: 2px 12px; white-space: nowrap;
 }
 .pcard-gold { border-color: var(--gold); box-shadow: 0 0 16px rgba(255, 215, 106, 0.22); }
 .badge-gold {
+  position: absolute; top: 10px; right: 10px;
   font-size: 9px; letter-spacing: 1px; font-weight: 800; color: #10131a;
-  background: var(--gold); border-radius: 4px; padding: 2px 6px; margin-left: 8px;
+  background: var(--gold); border-radius: 4px; padding: 2px 6px;
 }
 .pcard-was { color: var(--dim); font-weight: 400; margin-right: 7px; }
