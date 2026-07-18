@@ -14,7 +14,7 @@ import {
 const PPG_BASE = 22.0;
 const PPG_PER_OVR = 2.5; // expected points per weighted-OVR point above league avg
 const DEF_FACTOR = 0.5; // how much an above-avg opposing defense suppresses scoring
-const SCORE_SD = 5.7;
+const SCORE_SD = 5.2;
 const N_SIMS = 3000;
 
 function gauss(): number {
@@ -58,9 +58,9 @@ function playoffOpponent(topN: number): Team {
 }
 
 const ROUNDS = [
-  { tag: "Divisional", topN: 12 },
-  { tag: "Conference Championship", topN: 8 },
-  { tag: "Super Bowl", topN: 5 },
+  { tag: "Divisional", topN: 14 },
+  { tag: "Conference Championship", topN: 10 },
+  { tag: "Super Bowl", topN: 6 },
 ];
 
 /**
