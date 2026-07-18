@@ -58,7 +58,7 @@ export default function Wheel({ landing, spinKey, golden, onDone }: {
   return (
     <div className="wheel">
       <div className={`wheel-pointer ${golden ? "wheel-pointer-gold" : ""}`} />
-      {golden && <div className="wheel-golden-tag">STEAL</div>}
+      {golden && <div className="wheel-golden-tag">ROOKIE DEAL</div>}
       <div
         ref={stripRef}
         className="wheel-strip"

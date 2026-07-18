@@ -39,7 +39,7 @@ function PlayerCard({ p, origPrice, signable, onRoster, out, net, canSwap, onSwa
           {p.ovr}
           <span className="ovr-label">OVR</span>
         </span>
-        {origPrice !== null && <span className="badge-gold">STEAL</span>}
+        {origPrice !== null && <span className="badge-gold">ROOKIE DEAL</span>}
       </div>
       <div className="pcard-name">{p.name}</div>
       {out ? (
@@ -74,7 +74,9 @@ function PlayerCard({ p, origPrice, signable, onRoster, out, net, canSwap, onSwa
         </div>
       )}
       {origPrice !== null && (
-        <div className="pcard-deal-note">Superstar discount — this spin only</div>
+        <div className="pcard-deal-note">
+          Year {p.yearsPro + 1} of his rookie contract — this spin only
+        </div>
       )}
       <button
         className={`pcard-cta ${out && !onRoster ? "pcard-cta-trade" : ""}`}
