@@ -155,7 +155,9 @@ export default function App() {
             </div>
             <div className="step">
               <div className="step-h">SIMULATE</div>
-              <div className="step-p">All 17 games plus the playoffs. Perfection is 20–0.</div>
+              <div className="step-p">
+                We run your season 10,000 times. Your score: the chance you go 20–0.
+              </div>
             </div>
           </div>
           <button className="btn btn-hot btn-big" onClick={start}>

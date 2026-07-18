@@ -16,7 +16,7 @@ const PPG_BASE = 22.0;
 const PPG_PER_OVR = 2.5; // expected points per weighted-OVR point above league avg
 const DEF_FACTOR = 0.5; // how much an above-avg opposing defense suppresses scoring
 const SCORE_SD = 5.2;
-const N_SIMS = 3000;
+const N_SIMS = 10000; // the % IS the score now — smooth it out
 
 function gauss(): number {
   let u = 0, v = 0;

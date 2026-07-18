@@ -60,7 +60,6 @@ export default function Results({ roster, sim, draws, trades, spent, onRestart }
 }) {
   const best = useMemo(() => bestPossible(draws), [draws]);
   const bestSim = useMemo(() => (best ? runSimsOff(best.off) : null), [best]);
-  const f = sim.sampled; // the season you actually lived — 20-0 is genuinely hittable
   const yourFive = SLOTS.map((s) => ({ slot: s, player: roster[s]!.player }));
   const pickedBest =
     best !== null &&
@@ -69,38 +68,42 @@ export default function Results({ roster, sim, draws, trades, spent, onRestart }
   const yourAvg = yourFive.reduce((s, x) => s + x.player.ovr, 0) / yourFive.length;
   // different five, but rated even with the ideal squad — the process was still perfect
   const matchedBest = !pickedBest && best !== null && yourAvg >= best.off - 1e-9;
-  // your rolled season kept pace with the ideal squad's benchmark record
-  const recordMatch =
-    !pickedBest && !matchedBest && bestSim !== null && f.wins >= bestSim.featured.wins;
   const [shareState, setShareState] = useState<"idle" | "copied" | "failed">("idle");
 
-  // story is a pure function of the win count so record and tag always agree:
-  // 20 = perfect, 19 = SB loss, 18 = conference, 17 = divisional, then generic tiers
-  const exitTag = f.perfect
-    ? "PERFECT SEASON. IMMORTALITY."
-    : f.wins >= 19
-      ? "Lost the Super Bowl. One win short of forever."
-      : f.wins >= 18
-        ? "Died in the Conference Championship."
-        : f.wins >= 17
-          ? "One-and-done in the Divisional Round."
-          : f.exit !== "MISSED"
-            ? "Made the playoffs. The dream didn't survive them."
-            : "Watching the playoffs from the couch.";
+  // the score IS the odds — a deterministic verdict, same squad, same result, always
+  const pctStr = sim.perfectPct === 0
+    ? "0%"
+    : sim.perfectPct < 0.05
+      ? "<0.05%"
+      : `${sim.perfectPct.toFixed(1)}%`;
+  const pctShown = Number(sim.perfectPct.toFixed(1)); // tier on what the player reads
+  const verdict = pctShown >= 40
+    ? "One coin flip from immortality."
+    : pctShown >= 20
+      ? "A true contender."
+      : pctShown >= 8
+        ? "Dangerous. Genuinely dangerous."
+        : pctShown >= 2
+          ? "A puncher's chance at forever."
+          : pctShown >= 0.5
+            ? "A long shot — but it's live."
+            : pctShown > 0
+              ? "A miracle required."
+              : "Watching the playoffs from the couch.";
 
   const shareText = () => {
     const lines = SLOTS.map((s) => {
       const sg = roster[s]!;
       return `${s}: ${sg.player.name} (${sg.player.ovr}) ${fmtM(sg.player.apy)}`;
     });
-    return `Dream Offense 🏈\nMy season: ${f.wins}–${f.losses}\n${lines.join("\n")}\nSpent ${fmtM(spent)} of ${fmtM(BUDGET)}`;
+    return `Dream Offense 🏈\nMy 20–0 odds: ${pctStr}\n${lines.join("\n")}\nSpent ${fmtM(spent)} of ${fmtM(BUDGET)}`;
   };
 
   const share = async () => {
     const avg = yourAvg;
     const blob = await renderShareCard({
-      record: `${f.wins}–${f.losses}`,
-      tag: exitTag,
+      record: pctStr,
+      tag: verdict,
       five: yourFive.map(({ slot, player }) => ({
         slot,
         ovr: player.ovr,
@@ -138,13 +141,11 @@ export default function Results({ roster, sim, draws, trades, spent, onRestart }
   return (
     <div className="results">
       <div className="res-hero">
-        <div className="res-record">
-          {f.wins}–{f.losses}
-        </div>
-        <div className="res-tag">{exitTag}</div>
+        <div className="res-record">{pctStr}</div>
+        <div className="res-pct-label">CHANCE OF THE PERFECT SEASON</div>
+        <div className="res-tag">{verdict}</div>
         <div className="res-sub">
-          spent {fmtM(spent)} of {fmtM(BUDGET)} · this squad goes 20–0 in{" "}
-          {sim.perfectPct < 0.05 ? "<0.05" : sim.perfectPct.toFixed(1)}% of seasons
+          spent {fmtM(spent)} of {fmtM(BUDGET)}
         </div>
       </div>
 
@@ -156,11 +157,6 @@ export default function Results({ roster, sim, draws, trades, spent, onRestart }
       {matchedBest && (
         <div className="res-best-pick">
           🏆 MAXED OUT — your five rates even with the best possible squad.
-        </div>
-      )}
-      {recordMatch && (
-        <div className="res-best-pick">
-          🏆 CAN'T BEAT THAT — you matched the best possible squad's record.
         </div>
       )}
 
@@ -181,12 +177,12 @@ export default function Results({ roster, sim, draws, trades, spent, onRestart }
         )}
       </div>
 
-      {best && bestSim && !pickedBest && !matchedBest && !recordMatch && (
+      {best && bestSim && !pickedBest && !matchedBest && (
         <div className="res-squad res-best">
           <h3>
             🏆 BEST POSSIBLE SQUAD{" "}
             <span className="res-sub">
-              sim record {bestSim.featured.wins}–{bestSim.featured.losses}
+              20–0 odds: {bestSim.perfectPct < 0.05 && bestSim.perfectPct > 0 ? "<0.05" : bestSim.perfectPct.toFixed(1)}%
             </span>
           </h3>
           {best.five.map(({ slot, player }) => (
