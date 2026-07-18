@@ -312,3 +312,5 @@ body {
 
 .arrow-up { color: var(--good); font-size: 11px; margin-left: 6px; }
 .arrow-down { color: var(--bad); font-size: 11px; margin-left: 6px; }
+
+.arrow-even { color: var(--text); font-size: 11px; margin-left: 6px; font-weight: 800; }

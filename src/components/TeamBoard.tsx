@@ -42,9 +42,13 @@ function PlayerCard({ p, origPrice, signable, onRoster, out, net, canSwap, onSwa
       </div>
       <div className="pcard-name">
         {p.name}
-        {out && !onRoster && p.ovr !== out.player.ovr && (
-          <span className={p.ovr > out.player.ovr ? "arrow-up" : "arrow-down"}>
-            {p.ovr > out.player.ovr ? "▲" : "▼"}
+        {out && !onRoster && (
+          <span
+            className={
+              p.ovr > out.player.ovr ? "arrow-up" : p.ovr < out.player.ovr ? "arrow-down" : "arrow-even"
+            }
+          >
+            {p.ovr > out.player.ovr ? "▲" : p.ovr < out.player.ovr ? "▼" : "="}
           </span>
         )}
       </div>
