@@ -140,11 +140,12 @@ body {
   font-family: var(--mono); font-size: 12px; letter-spacing: 3px; color: var(--hot);
   border-bottom: 2px solid var(--line); padding-bottom: 6px; margin-bottom: 10px; text-align: center;
 }
-.board-col { display: grid; gap: 10px; }
+.board-col { display: grid; gap: 10px; min-width: 0; }
+.board-col > * { min-width: 0; } /* cards may always shrink — never paint over a neighbor */
 
 /* player card */
 .pcard {
-  position: relative;
+  position: relative; min-width: 0; overflow: hidden;
   text-align: left; background: var(--panel-2); border: 1px solid var(--line);
   border-radius: 12px; padding: 12px; color: var(--text);
   transition: transform 0.08s ease, border-color 0.08s ease;
@@ -235,7 +236,7 @@ body {
 .swap-btn:hover { border-color: var(--trade); }
 
 .pcard-out { font-size: 11px; color: var(--dim); margin-top: 2px; display: flex; align-items: center; min-width: 0; }
-.pcard-out-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pcard-out-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pcard-out-label { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--trade); margin-right: 5px; flex: none; }
 
 .res-trades { margin-top: 8px; display: grid; gap: 2px; }
